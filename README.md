@@ -26,6 +26,6 @@ if you don't know what you're doing (detailed instructions):
         - identify the path of the file, for example C:\Users\yourname\path\to\the\folder
         - in your terminal, identify which directory you are in, it should be printed somewhere in the newly opened terminal window. (ex: C:\Users\yourname is the Windows default)
         - from the directory you are in, run `cd <path to folder>`. for the example path above it would look like `cd path\to\the\folder`, because we are already in the yourname directory. The path will look different depending on where you unzipped the file.
-        - next, once in the project directory, run `npm install`. this will install the required dependencies
-        - lastly, run `npm run start` which will run the project and automatically open a tab in your browser.
+- next, once in the project directory, run `npm install`. this will install the required dependencies
+- lastly, run `npm run start` which will run the project and automatically open a tab in your browser.
           
