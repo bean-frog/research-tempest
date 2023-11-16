@@ -1,0 +1,18 @@
+{
+  "name": "research-tempest",
+  "version": "1.0.0",
+  "description": "AutoTempest but for AP Seminar",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "express": "^4.18.2"
+  },
+  "dependencies": {
+    "puppeteer": "^21.5.2",
+    "tailwindcss": "^3.3.5"
+  }
+}
