@@ -14,8 +14,9 @@
             <input type="text" id="searchInput" class="p-1 m-2 w-96 text-black rounded-sm border-2 border-solid border-slate-800" name="query" required>
             <button id="submitBtn" type="button" class="p-2 m-2 text-white bg-emerald-500 shadow-lg rounded-lg hover:scale[1.01]" onclick="sendSearchRequest()">Search</button>
         </div>
-        
     </div>
+    <h1 id="links" class="hidden text-sm text-black">View your search on: <a class="underline" id="links-liebert">LiebertPub</a>, <a class="underline" id="links-sage">Sage Journals</a></h1>
+
     <div id="results" class="grid grid-cols-2 gap-6 mt-6 w-3/4">
 
     </div>
@@ -40,6 +41,7 @@
           .then(data => {
             console.log('Server response:', data);
             appendArticles(data);
+            displayLinks(inputValue)
             smb.removeAttribute('disabled');
         smb.innerHTML = 'Search'
           })
@@ -62,6 +64,19 @@
           `
           document.getElementById('results').insertAdjacentHTML('beforeend', template)
         });
+      }
+      function displayLinks(query){
+        let links = document.getElementById('links');
+        let liebert = document.getElementById('links-liebert');
+        let sage = document.getElementById('links-sage');
+        if (links.classList.contains('hidden')) {
+          links.classList.remove('hidden');
+        }
+        query = query.trim().replace(/\s+/g, '+');
+        var liebertHref = `https://www.liebertpub.com/action/doSearch?AllField=${query}&pagesize=100`
+        liebert.setAttribute('href', liebertHref)
+        var sageHref = `https://journals.sagepub.com/action/doSearch?AllField=${query}&startPage=0&rel=&access=user&pageSize=100`
+        sage.setAttribute('href', sageHref)
       }
     </script>
 </body>
