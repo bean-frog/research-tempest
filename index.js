@@ -31,10 +31,10 @@ async function combineSearchResults(query) {
 async function searchSciDirect(query) {
     const browser = await puppeteer.launch();
     const page = await browser.newPage()
+    await page.setViewport({ width: 1600, height: 900 });
     query = query.trim().replace(/\s+/g, '%20');
     await page.goto(`https://www.sciencedirect.com/search?qs=${query}&show=100&accessTypes=openaccess`);
     await page.waitForSelector('.SearchBody');
-    await page.screenshot({path: 'screenshot.png'})
     const result = await page.evaluate(() => {
       const list = document.querySelectorAll('li.ResultItem');
       var entries = []
