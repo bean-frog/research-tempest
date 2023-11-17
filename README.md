@@ -8,7 +8,6 @@
   #### Journals:
   - LiebertPub
   - Sage Journals
-  - Google Scholar
   - ScienceDirect
     
 #### How to run
