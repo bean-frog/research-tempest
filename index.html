@@ -15,7 +15,8 @@
             <button id="submitBtn" type="button" class="p-2 m-2 text-white bg-emerald-500 shadow-lg rounded-lg hover:scale[1.01]" onclick="sendSearchRequest()">Search</button>
         </div>
     </div>
-    <h1 id="links" class="hidden text-sm text-black">View your search on: <a class="underline" id="links-liebert">LiebertPub</a>, <a class="underline" id="links-sage">Sage Journals</a></h1>
+    <h1 id='pbp' class="text-sm  text-slate-700">Be patient after searching, scraping the sites takes a while. <a target="_blank" class="underline" href="whysolong.txt">Why?</a></h1>
+    <h1 id="links" class="hidden text-sm text-black">View your search on: <a target="_blank" class="underline" id="links-liebert">LiebertPub</a>, <a target="_blank" class="underline" id="links-sage">Sage Journals</a>, <a target="_blank" class="underline" id="links-scidirect">ScienceDirect</a></h1>
 
     <div id="results" class="grid grid-cols-2 gap-6 mt-6 w-3/4">
 
@@ -69,6 +70,7 @@
         let links = document.getElementById('links');
         let liebert = document.getElementById('links-liebert');
         let sage = document.getElementById('links-sage');
+        let scidir = document.getElementById('links-scidirect')
         if (links.classList.contains('hidden')) {
           links.classList.remove('hidden');
         }
@@ -77,6 +79,8 @@
         liebert.setAttribute('href', liebertHref)
         var sageHref = `https://journals.sagepub.com/action/doSearch?AllField=${query}&startPage=0&rel=&access=user&pageSize=100`
         sage.setAttribute('href', sageHref)
+        var scidirHref = `https://www.sciencedirect.com/search?qs=${query}&show=100&accessTypes=openaccess`;
+        scidir.setAttribute('href', scidirHref)
       }
     </script>
 </body>

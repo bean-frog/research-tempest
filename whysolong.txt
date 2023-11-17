@@ -1,0 +1,7 @@
+whysolong.txt - an explanation as to why you have to wait long enough to grow a full beard
+
+This project gets results from the involved research sites by web scraping, using Puppeteer (https://pptr.dev).
+The reason you have to wait a while is that for EVERY site that is scraped, a whole chrome window is opened headlessly (you don't see any actual window, but I assure you, it's there).
+each time the window is loaded, we have to run a cloudflare bypass so that we can actually access the site, then wait for all the content to load, then for 100 results (per site) go into the HTML code and find the title and doi.
+after this, all that data is aggregated into a relatively massive (usually >50kb) JSON array and sent back to your browser which then renders each item as a result.
+It's worth noting that the faster your machine, the faster the scraping will be. There aren't any hardcoded delays, its all done using async await (meaning that each function is ran ASAP once everything it need to run is loaded)

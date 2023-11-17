@@ -11,35 +11,56 @@ app.use(bodyParser.urlencoded({ extended: false }))
 
 app.post('/search', async (req, res) => {
     let query = req.body.query;
-    let liebertResults = await searchLiebert(query);
-    let sageResults = await searchSage(query);
-
+   
     res.send(await combineSearchResults(query));
 });
 async function combineSearchResults(query) {
     const liebertResult = await searchLiebert(query);
     const sageResult = await searchSage(query);
+    const sciDirectResult = await searchSciDirect(query);
   
-    const combinedResult = JSON.parse(liebertResult).concat(JSON.parse(sageResult));
+    const parsedLiebertResult = JSON.parse(liebertResult);
+    const parsedSageResult = JSON.parse(sageResult);
+    const parsedSciDirectResult = JSON.parse(sciDirectResult);
+      const combinedResult = parsedLiebertResult.concat(parsedSageResult, parsedSciDirectResult);
   
     return JSON.stringify(combinedResult, null, 2);
   }
+  
 //sciencedirect search
-/*
 async function searchSciDirect(query) {
-  const browser = await puppeteer.launch();
-  const page = await browser.newPage();
-  await page.setViewport({ width: 1600, height: 900 });
-  query = query.trim().replace(/\s+/g, '%20');
-  await page.goto(`https://www.sciencedirect.com/search?qs=${query}&show=100`);
-  await page.waitForSelector('.SearchBody')
-  await page.screenshot({ path: 'screenshot.png' });
-
-
-  await browser.close();
-  return ;
-}
-*/
+    const browser = await puppeteer.launch();
+    const page = await browser.newPage()
+    query = query.trim().replace(/\s+/g, '%20');
+    await page.goto(`https://www.sciencedirect.com/search?qs=${query}&show=100&accessTypes=openaccess`);
+    await page.waitForSelector('.SearchBody');
+    await page.screenshot({path: 'screenshot.png'})
+    const result = await page.evaluate(() => {
+      const list = document.querySelectorAll('li.ResultItem');
+      var entries = []
+     
+      list.forEach((item) => {
+        const entry = {
+            origin: '',
+            title: '',
+            doi: ''
+        };
+        const titleElement = item.querySelector('h2');
+        if (titleElement) {
+          entry.title = titleElement.innerText;
+        }
+          entry.doi = "https://doi.org/" + item.getAttribute('data-doi');
+          entry.origin = 'ScienceDirect';
+        entries.push(entry);
+    });
+      return entries;
+    });
+  
+  
+    await browser.close();
+    return JSON.stringify(result, null, 2);
+  
+  }
 //liebert pub search
 async function searchLiebert(query) {
   const browser = await puppeteer.launch();
@@ -50,7 +71,7 @@ async function searchLiebert(query) {
   const result = await page.evaluate(() => {
       const entries = [];
       const titles = document.querySelectorAll('h5.meta__title');
-
+      
       titles.forEach((title) => {
           const entry = {
               origin: '',
