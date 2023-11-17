@@ -12,8 +12,7 @@
     
 #### How to run
 - because this project uses puppeteer and nodeJS, and I don't have a server, you'll have to run it on your machine.
-- It *should* work on most major operating systems or CPU architectures
-<br>
+- It *should* work on most major operating systems
 
 #### if you know how to run nodejs apps: install deps with `npm install` then run with `npm run start`
 #### if you don't know what you're doing, refer to the guide below:
