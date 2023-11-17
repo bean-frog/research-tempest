@@ -1,7 +1,9 @@
 node_modules 
 
-#test file
-pptrtesting.js 
+#test files
+testing
+testindex.html
+testing.js
 
 #SS for debug purposes
 screenshot.png 

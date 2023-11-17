@@ -5,6 +5,8 @@ const bodyParser = require('body-parser');
 const StealthPlugin = require('puppeteer-extra-plugin-stealth')
 puppeteer.use(StealthPlugin()) //i hope this doesnt get me a cease and desist letter from the sciencedirect legal team
 const app = express();
+const green = "\x1b[32m"
+const white = "\x1b[37m"
 
 app.use('/', express.static(path.join(__dirname), {
     index: 'index.html'
@@ -29,13 +31,14 @@ async function combineSearchResults(query) {
     const parsedSciDirectResult = JSON.parse(sciDirectResult);
     const parsedPubMedResult = JSON.parse(pubMedResult);
     const combinedResult = parsedLiebertResult.concat(parsedSageResult, parsedSciDirectResult, parsedPubMedResult);
-
+    console.log(green, "[STATUS]: All results concatenated, sending JSON to frontend")
     return JSON.stringify(combinedResult, null, 2);
 }
 
 //sciencedirect search
 async function searchSciDirect(query) {
-    const browser = await puppeteer.launch();
+  console.log(white, "[TASK]: Beginning ScienceDirect page search")
+    const browser = await puppeteer.launch({ headless: 'new'});
     const page = await browser.newPage()
     await page.setViewport({
         width: 1600,
@@ -43,6 +46,7 @@ async function searchSciDirect(query) {
     });
     query = query.trim().replace(/\s+/g, '%20');
     await page.goto(`https://www.sciencedirect.com/search?qs=${query}&show=100&accessTypes=openaccess`);
+    //console.log(white, "------ Page opened")
     await page.waitForSelector('.SearchBody');
     const result = await page.evaluate(() => {
         const list = document.querySelectorAll('li.ResultItem');
@@ -61,25 +65,29 @@ async function searchSciDirect(query) {
             entry.doi = "https://doi.org/" + item.getAttribute('data-doi');
             entry.origin = 'ScienceDirect';
             entries.push(entry);
+           // process.stdout.write(`\rEntries pushed: ${index + 1}`);
         });
         return entries;
     });
-
+   // console.log(white, "------ All results scraped")
 
     await browser.close();
+    console.log(green, '[STATUS]: ScienceDirect search complete')
     return JSON.stringify(result, null, 2);
 
 }
 //liebert pub search
 async function searchLiebert(query) {
-    const browser = await puppeteer.launch();
-    const page = await browser.newPage();
+  console.log(white, "[TASK]: Beginning LiebertPub page search")
+  const browser = await puppeteer.launch({ headless: 'new'});
+  const page = await browser.newPage();
     await page.setViewport({
         width: 1600,
         height: 900
     });
     query = query.trim().replace(/\s+/g, '+');
     await page.goto(`https://www.liebertpub.com/action/doSearch?AllField=${query}&pagesize=100`);
+   // console.log(white, "------ Page opened")
     const result = await page.evaluate(() => {
         const entries = [];
         const titles = document.querySelectorAll('h5.meta__title');
@@ -101,22 +109,26 @@ async function searchLiebert(query) {
 
         return entries;
     });
+  //  console.log(white, "------ All results scraped")
 
     await browser.close();
+        console.log(green, '[STATUS]: LiebertPub search complete')
+
     return JSON.stringify(result, null, 2);
 }
 
 //sage journals search 
 async function searchSage(query) {
-    const browser = await puppeteer.launch();
-    const page = await browser.newPage();
+  console.log(white, "[TASK]: Beginning Sage Journals page search")
+  const browser = await puppeteer.launch({ headless: 'new'});
+  const page = await browser.newPage();
     await page.setViewport({
         width: 1600,
         height: 900
     });
     query = query.trim().replace(/\s+/g, '+');
     await page.goto(`https://journals.sagepub.com/action/doSearch?AllField=${query}&startPage=0&rel=&access=user&pageSize=100`);
-
+   // console.log(white, "------ Page opened")
 
     const result = await page.evaluate(() => {
         const entries = [];
@@ -139,20 +151,24 @@ async function searchSage(query) {
 
         return entries;
     });
+    //console.log(white, "------ All results scraped")
 
     await browser.close();
+    console.log(green, '[STATUS]: Sage Journals search complete')
     return JSON.stringify(result, null, 2);
 }
 //nih.gov search
 async function searchPubMed(query) {
-    const browser = await puppeteer.launch();
-    const page = await browser.newPage();
+  console.log(white, "[TASK]: Beginning PubMed page search")
+  const browser = await puppeteer.launch({ headless: 'new'});
+  const page = await browser.newPage();
     await page.setViewport({
         width: 1600,
         height: 900
     });
     query = query.trim().replace(/\s+/g, '+');
     await page.goto(`https://pubmed.ncbi.nlm.nih.gov/?term=${query}&filter=simsearch2.ffrft&size=100`);
+   // console.log(white, "------ Page opened")
     await page.waitForSelector('.search-results');
     const result = await page.evaluate(() => {
         const list = document.querySelectorAll('article.full-docsum');
@@ -186,12 +202,14 @@ async function searchPubMed(query) {
         return entries;
     });
 
+    //console.log(white, "------ All results scraped")
 
     await browser.close();
+    console.log(green, '[STATUS]: PubMed search complete')
     return JSON.stringify(result, null, 2);
 
 }
-
-app.listen(3000, () => {
-    console.log('research tempest os READY on port 3000. Go to `localhost:3000` in your browser.');
+const port = 3000
+app.listen(port, () => {
+  console.log(green, `[LAUNCH]: research-tempest is ready and waiting at port ${port}. Navigate to localhost:${port}`)
 });

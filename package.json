@@ -4,7 +4,8 @@
   "description": "AutoTempest but for AP Seminar",
   "main": "index.js",
   "scripts": {
-    "start": "node index.js"
+    "start": "node index.js",
+    "test": "node testing.js"
   },
   "author": "",
   "license": "ISC",
