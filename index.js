@@ -18,11 +18,13 @@ async function combineSearchResults(query) {
     const liebertResult = await searchLiebert(query);
     const sageResult = await searchSage(query);
     const sciDirectResult = await searchSciDirect(query);
+    const pubMedResult = await searchPubMed(query)
   
     const parsedLiebertResult = JSON.parse(liebertResult);
     const parsedSageResult = JSON.parse(sageResult);
     const parsedSciDirectResult = JSON.parse(sciDirectResult);
-      const combinedResult = parsedLiebertResult.concat(parsedSageResult, parsedSciDirectResult);
+    const parsedPubMedResult = JSON.parse(pubMedResult);
+    const combinedResult = parsedLiebertResult.concat(parsedSageResult, parsedSciDirectResult, parsedPubMedResult);
   
     return JSON.stringify(combinedResult, null, 2);
   }
@@ -128,7 +130,54 @@ async function searchSage(query) {
 await browser.close();
 return JSON.stringify(result, null, 2);
 }
+//nih.gov search
+async function searchPubMed(query) {
+  const browser = await puppeteer.launch();
+  const page = await browser.newPage();
+  await page.setViewport({
+      width: 1600,
+      height: 900
+  });
+  query = query.trim().replace(/\s+/g, '+');
+  await page.goto(`https://pubmed.ncbi.nlm.nih.gov/?term=${query}&filter=simsearch2.ffrft&size=100`);
+  await page.waitForSelector('.search-results');
+  const result = await page.evaluate(() => {
+      const list = document.querySelectorAll('article.full-docsum');
+      var entries = []
 
+      list.forEach((item) => {
+          const entry = {
+              origin: '',
+              title: '',
+              doi: ''
+          };
+          const titleElement = item.getElementsByClassName('docsum-title')[0];
+          if (titleElement) {
+              entry.title = titleElement.innerText;
+          }
+          var inputString = item.querySelector('.docsum-journal-citation').innerText
+          const doiRegex = /\bdoi:\s*(10\.\d+\/[^\s]+)/i;
+
+          const match = inputString.match(doiRegex);
+
+          if (match && match[1]) {
+              const doi = match[1];
+              const doiUrl = "https://doi.org/" + doi;
+              inputString = doiUrl;
+              entry.doi = inputString;
+          }
+
+          entry.origin = 'ncbi.nlm.nih.gov';
+          entries.push(entry);
+      });
+      return entries;
+  });
+
+
+  await browser.close();
+  return JSON.stringify(result, null, 2);
+
+}
 
 app.listen(3000, () => {
     console.log('research tempest os READY on port 3000. Go to `localhost:3000` in your browser.');
