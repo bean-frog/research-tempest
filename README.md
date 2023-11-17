@@ -1,7 +1,7 @@
 # research-tempest
 ### One search, all the journals.
 - Currently in development (adding more journals to scrape), but LiebertPub, Sage Journals, and ScienceDirect work
-- this program takes your query and enters it into several free access scholarly journals.
+- this program takes your query and enters it into several free access scholarly journals at the same time then aggregates all the results (returns the first 100 results from each site).
 - very useful for AP Seminar and/or AP Research.
 
 
