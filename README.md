@@ -19,6 +19,7 @@
     - installation commands vary by OS, check google for yours if you're unsure.
 ##### Running the first time:
 if you know what youre doing: cd to the project dir, then run `npm install` and `npm run start`.
+<br>
 if you don't know what you're doing (detailed instructions):
 - download this repository, using the green "Code" button at the top right. Select the zip option.
 - unzip this file to whatever directory you want.
