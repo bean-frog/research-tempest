@@ -37,178 +37,152 @@ async function combineSearchResults(query) {
 
 //sciencedirect search
 async function searchSciDirect(query) {
-  console.log(white, "[TASK]: Beginning ScienceDirect page search")
-    const browser = await puppeteer.launch({ headless: 'new'});
-    const page = await browser.newPage()
-    await page.setViewport({
-        width: 1600,
-        height: 900
-    });
-    query = query.trim().replace(/\s+/g, '%20');
-    await page.goto(`https://www.sciencedirect.com/search?qs=${query}&show=100&accessTypes=openaccess`);
-    //console.log(white, "------ Page opened")
-    await page.waitForSelector('.SearchBody');
-    const result = await page.evaluate(() => {
-        const list = document.querySelectorAll('li.ResultItem');
-        var entries = []
+  console.log(white, "[TASK]: Beginning Science Direct page search")
+  query = query.trim().replace(/\s+/g, '%20');
+const url = `https://www.sciencedirect.com/search?qs=${query}&show=100&accessTypes=openaccess`;
 
-        list.forEach((item) => {
-            const entry = {
-                origin: '',
-                title: '',
-                doi: ''
-            };
-            const titleElement = item.querySelector('h2');
-            if (titleElement) {
-                entry.title = titleElement.innerText;
-            }
-            entry.doi = "https://doi.org/" + item.getAttribute('data-doi');
-            entry.origin = 'ScienceDirect';
-            entries.push(entry);
-           // process.stdout.write(`\rEntries pushed: ${index + 1}`);
-        });
-        return entries;
-    });
-   // console.log(white, "------ All results scraped")
+const browser = await puppeteer.launch({headless: "new"});
+const page = await browser.newPage();
 
-    await browser.close();
+await page.goto(url);
+
+// Wait for the search result selector to become available
+await page.waitForSelector('.ResultList');
+
+// Extract information from each search result
+const entries = await page.evaluate(() => {
+  const results = document.querySelectorAll('.ResultItem');
+  const entriesArray = [];
+
+  results.forEach(result => {
+    const title = result.querySelector('.result-list-title-link').innerText.trim();
+    const doi = result.dataset.doi;
+
+    entriesArray.push({
+      origin: 'ScienceDirect',
+      title: title,
+      doi: doi,
+    });
+  });
+
+  return entriesArray;
+});
+
+await browser.close();
+
     console.log(green, '[STATUS]: ScienceDirect search complete')
-    return JSON.stringify(result, null, 2);
+    return JSON.stringify(entries, null, 2);
 
 }
 //liebert pub search
 async function searchLiebert(query) {
   console.log(white, "[TASK]: Beginning LiebertPub page search")
-  const browser = await puppeteer.launch({ headless: 'new'});
+  query = query.trim().replace(/\s+/g, '+');
+  const url = `https://www.liebertpub.com/action/doSearch?AllField=${query}&pageSize=100`;
+
+  const browser = await puppeteer.launch({headless: "new"});
   const page = await browser.newPage();
-    await page.setViewport({
-        width: 1600,
-        height: 900
+
+  await page.goto(url);
+
+  await page.waitForSelector('.search-result__body');
+
+  const entries = await page.evaluate(() => {
+    const results = document.querySelectorAll('.search__item');
+    const entriesArray = [];
+
+    results.forEach(result => {
+      const title = result.querySelector('.meta__title a').innerText;
+      const doi = result.querySelector('.meta_doi a').innerText;
+
+      entriesArray.push({
+        origin: 'LiebertPub',
+        title: title,
+        doi: doi,
+      });
     });
-    query = query.trim().replace(/\s+/g, '+');
-    await page.goto(`https://www.liebertpub.com/action/doSearch?AllField=${query}&pagesize=100`);
-   // console.log(white, "------ Page opened")
-    const result = await page.evaluate(() => {
-        const entries = [];
-        const titles = document.querySelectorAll('h5.meta__title');
 
-        titles.forEach((title) => {
-            const entry = {
-                origin: '',
-                title: '',
-                doi: ''
-            };
-            const titleElement = title.querySelector('a');
-            if (titleElement) {
-                entry.title = titleElement.textContent.trim();
-                entry.doi = titleElement.href;
-                entry.origin = 'LiebertPub'
-            }
-            entries.push(entry);
-        });
+    return entriesArray;
+  });
 
-        return entries;
-    });
-  //  console.log(white, "------ All results scraped")
-
-    await browser.close();
-        console.log(green, '[STATUS]: LiebertPub search complete')
-
-    return JSON.stringify(result, null, 2);
+  await browser.close();
+  console.log(green, '[STATUS]: LiebertPub search complete')
+    return JSON.stringify(entries, null, 2)
 }
 
 //sage journals search 
 async function searchSage(query) {
-  console.log(white, "[TASK]: Beginning Sage Journals page search")
-  const browser = await puppeteer.launch({ headless: 'new'});
-  const page = await browser.newPage();
-    await page.setViewport({
-        width: 1600,
-        height: 900
-    });
+    console.log(white, "[TASK]: Beginning Sage Journals page search")
     query = query.trim().replace(/\s+/g, '+');
-    await page.goto(`https://journals.sagepub.com/action/doSearch?AllField=${query}&startPage=0&rel=&access=user&pageSize=100`);
-   // console.log(white, "------ Page opened")
-
-    const result = await page.evaluate(() => {
-        const entries = [];
-        const titles = document.querySelectorAll('a.sage-search-title');
-
-        titles.forEach((title) => {
-            const entry = {
-                origin: '',
-                title: '',
-                doi: ''
-            };
-            const titleElement = title.childNodes[0]
-            if (titleElement) {
-                entry.title = titleElement.textContent.trim();
-                entry.doi = title.href;
-                entry.origin = 'Sage Journals'
-            }
-            entries.push(entry);
+    const url = `https://journals.sagepub.com/action/doSearch?AllField=${query}&startPage=0&rel=&access=user&pageSize=100`;
+  
+    const browser = await puppeteer.launch({headless: 'new'});
+    const page = await browser.newPage();
+  
+    await page.goto(url);
+  
+    // Wait for the search result selector to become available
+    await page.waitForSelector('.issue-item');
+  
+    // Extract information from each search result
+    const entries = await page.evaluate(() => {
+      const results = document.querySelectorAll('.issue-item');
+      const entriesArray = [];
+  
+      results.forEach(result => {
+        const title = result.querySelector('.issue-item__title h3').innerText;
+        const doi = result.querySelector('input[name="doi"]').value;
+  
+        entriesArray.push({
+          origin: 'Sage Journals',
+          title: title,
+          doi: "https://doi.org/" + doi,
         });
-
-        return entries;
+      });
+  
+      return entriesArray;
     });
-    //console.log(white, "------ All results scraped")
-
+  
     await browser.close();
     console.log(green, '[STATUS]: Sage Journals search complete')
-    return JSON.stringify(result, null, 2);
-}
+    return JSON.stringify(entries, null, 2)
+  }
 //nih.gov search
 async function searchPubMed(query) {
-  console.log(white, "[TASK]: Beginning PubMed page search")
-  const browser = await puppeteer.launch({ headless: 'new'});
-  const page = await browser.newPage();
-    await page.setViewport({
-        width: 1600,
-        height: 900
-    });
+    console.log(white, "[TASK]: Beginning PubMed page search")
     query = query.trim().replace(/\s+/g, '+');
-    await page.goto(`https://pubmed.ncbi.nlm.nih.gov/?term=${query}&filter=simsearch2.ffrft&size=100`);
-   // console.log(white, "------ Page opened")
-    await page.waitForSelector('.search-results');
-    const result = await page.evaluate(() => {
-        const list = document.querySelectorAll('article.full-docsum');
-        var entries = []
-
-        list.forEach((item) => {
-            const entry = {
-                origin: '',
-                title: '',
-                doi: ''
-            };
-            const titleElement = item.getElementsByClassName('docsum-title')[0];
-            if (titleElement) {
-                entry.title = titleElement.innerText;
-            }
-            var inputString = item.querySelector('.docsum-journal-citation').innerText
-            const doiRegex = /\bdoi:\s*(10\.\d+\/[^\s]+)/i;
-
-            const match = inputString.match(doiRegex);
-
-            if (match && match[1]) {
-                const doi = match[1];
-                const doiUrl = "https://doi.org/" + doi;
-                inputString = doiUrl;
-                entry.doi = inputString;
-            }
-
-            entry.origin = 'ncbi.nlm.nih.gov';
-            entries.push(entry);
+    const url = `https://pubmed.ncbi.nlm.nih.gov/?term=${query}&filter=simsearch2.ffrft&size=100`;
+  
+    const browser = await puppeteer.launch({headless: "new"});
+    const page = await browser.newPage();
+  
+    await page.goto(url);
+  
+    await page.waitForSelector('.search-results-chunks');
+  
+    const entries = await page.evaluate(() => {
+      const results = document.querySelectorAll('.full-docsum');
+      const entriesArray = [];
+  
+      results.forEach(result => {
+        const title = result.querySelectorAll('.docsum-title')[0].innerText.trim();
+        const pmid = result.querySelectorAll('.docsum-pmid')[0].innerText.trim();
+        entriesArray.push({
+          origin: 'PubMed',
+          title: title,
+          doi: `https://pubmed.ncbi.nlm.nih.gov/${pmid}`,
         });
-        return entries;
+      });
+  
+      return entriesArray;
     });
-
-    //console.log(white, "------ All results scraped")
-
+  
     await browser.close();
-    console.log(green, '[STATUS]: PubMed search complete')
-    return JSON.stringify(result, null, 2);
-
-}
+  
+      console.log(green, '[STATUS]: PubMed search complete')
+      return JSON.stringify(entries, null, 2);
+  
+  }
 const port = 3000
 app.listen(port, () => {
   console.log(green, `[LAUNCH]: research-tempest is ready and waiting at port ${port}. Navigate to localhost:${port}`)

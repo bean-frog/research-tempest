@@ -54,6 +54,7 @@
       }
 
       function appendArticles(data) {
+         document.getElementById('results').innerHTML = ''
         data = JSON.parse(data)
         data.forEach(entry => {
           const template = `
