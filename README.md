@@ -94,6 +94,6 @@ If you encounter any issues, feel free to open up an issue in the Issues tab of 
 
 # Troubleshooting
 #### Puppeteer old Headless deprecation warning
-- this will show up in the terminal after running the program. You can ignore it.
+- this might show up in the terminal after running the program. You can ignore it.
 #### any nodejs error
 - if something has gone wrong, the program may stop and throw an error in the terminal window. This shouldn't happen, but if it does, paste any error messages into a new issue in this repository, along with your operating system (windows, mac, linux)
