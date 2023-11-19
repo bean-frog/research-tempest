@@ -11,7 +11,7 @@ const white = "\x1b[37m"
 const red = "\x1b[31m"
 
 app.use('/', express.static(path.join(__dirname), {
-    index: 'testindex.html'
+    index: 'index.html'
 }));
 app.use(bodyParser.urlencoded({
     extended: false
