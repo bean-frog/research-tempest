@@ -3,21 +3,58 @@ const puppeteer = require('puppeteer-extra');
 const path = require('path');
 const bodyParser = require('body-parser');
 const StealthPlugin = require('puppeteer-extra-plugin-stealth')
+
 puppeteer.use(StealthPlugin()) //i hope this doesnt get me a cease and desist letter from the sciencedirect legal team
 const app = express();
 const green = "\x1b[32m"
 const white = "\x1b[37m"
+const red = "\x1b[31m"
 
 app.use('/', express.static(path.join(__dirname), {
-    index: 'index.html'
+    index: 'testindex.html'
 }));
 app.use(bodyParser.urlencoded({
     extended: false
 }))
 
+app.post('/liebert', async (req, res) => {
+    let query = req.body.query;
+    console.log(red, '[SERVER]: Request received at API endpoint /liebert');
+    var result = await searchLiebert(query);
+    result = JSON.parse(result);
+    res.send(result);
+  });
+  
+  app.post('/sage', async (req, res) => {
+    let query = req.body.query;
+    console.log(red, '[SERVER]: Request received at API endpoint /sage');
+    var result = await searchSage(query);
+    result = JSON.parse(result);
+    res.send(result);
+  });
+  
+  app.post('/scidir', async (req, res) => {
+    let query = req.body.query;
+    console.log(red, '[SERVER]: Request received at API endpoint /scidir');
+    var result = await searchSciDirect(query);
+    result = JSON.parse(result);
+    res.send(result);
+  });
+  
+  app.post('/pubmed', async (req, res) => {
+    let query = req.body.query;
+    console.log(red, '[SERVER]: Request received at API endpoint /pubmed');
+    var result = await searchPubMed(query);
+    result = JSON.parse(result);
+    res.send(result);
+  });
+  
+
+
+
 app.post('/search', async (req, res) => {
     let query = req.body.query;
-
+    console.log(red, '[SERVER]: Request recieved at endpoint /search. Running searches non-simultaneously.');
     res.send(await combineSearchResults(query));
 });
 async function combineSearchResults(query) {
@@ -61,7 +98,7 @@ const entries = await page.evaluate(() => {
     entriesArray.push({
       origin: 'ScienceDirect',
       title: title,
-      doi: doi,
+      doi: "https://doi.org/" + doi,
     });
   });
 
@@ -183,7 +220,7 @@ async function searchPubMed(query) {
       return JSON.stringify(entries, null, 2);
   
   }
-const port = 3000
+const port = 3001
 app.listen(port, () => {
-  console.log(green, `[LAUNCH]: research-tempest is ready and waiting at port ${port}. Navigate to localhost:${port}`)
+  console.log(red, `[SERVER]: research-tempest is ready and waiting at port ${port}. Navigate to localhost:${port}`)
 });
