@@ -220,7 +220,7 @@ async function searchPubMed(query) {
       return JSON.stringify(entries, null, 2);
   
   }
-const port = 3001
+const port = 3000
 app.listen(port, () => {
   console.log(red, `[SERVER]: research-tempest is ready and waiting at port ${port}. Navigate to localhost:${port}`)
 });
