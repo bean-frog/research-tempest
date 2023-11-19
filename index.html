@@ -58,7 +58,7 @@
           let smb = document.getElementById('submitBtn');
         smb.setAttribute('disabled', 'true');
         smb.innerHTML = '<span class="loading loading-spinner loading-xs"></span>'
-          fetch('http://localhost:3000/search', {
+          fetch('/search', {
             method: 'POST',
             headers: {
               'Content-Type': 'application/x-www-form-urlencoded',
@@ -92,7 +92,7 @@
 
     Promise.all(
       endpoints.map(endpoint =>
-        fetch(`http://localhost:3000${endpoint}`, {
+        fetch(`${endpoint}`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/x-www-form-urlencoded',
