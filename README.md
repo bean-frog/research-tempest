@@ -1,4 +1,8 @@
 # research-tempest
+# PLEASE READ EFORE DOWNLOADING: this version sucks ass and constantly breaks. I'm making a new one with better UX and hopefully better speed also. You could you this one, but if you dont know programming stuff I recommend waiting for v2.
+
+
+
 ### One search, all the journals.
 - Currently in development (adding more journals to scrape), but LiebertPub, Sage Journals, NIH PubMed, and ScienceDirect work
 - this program takes your query and enters it into several free access scholarly journals at the same time then aggregates all the results (returns the first 100 results from each site).
